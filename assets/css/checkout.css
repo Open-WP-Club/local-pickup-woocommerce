@@ -1,0 +1,22 @@
+.lps-pickup-selector {
+	display: grid;
+	gap: 0.5rem;
+	margin: 0 0 1rem;
+}
+
+.lps-pickup-selector label {
+	font-weight: 600;
+}
+
+.lps-pickup-selector select {
+	box-sizing: border-box;
+	font: inherit;
+	min-height: 3em;
+	padding: 0.75em;
+	width: 100%;
+}
+
+.wp-block-woocommerce-checkout-pickup-options-block .lps-native-rate {
+	display: none !important;
+}
+

@@ -1,0 +1,101 @@
+name: Build and attach plugin ZIP
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout release tag
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.release.tag_name }}
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install test dependencies
+      run: composer install --no-interaction --no-progress --prefer-dist
+
+    - name: Run release checks
+      run: |
+        composer validate --strict
+        composer test
+        composer lint:php
+        find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+        node --check assets/js/checkout.js
+
+    - name: Verify tag matches plugin version
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      run: |
+        plugin_version=$(sed -n 's/^ \* Version:[[:space:]]*//p' local-pickup-stores.php)
+        normalized_tag=${RELEASE_TAG#v}
+        test "$normalized_tag" = "$plugin_version" || {
+          echo "Release tag $RELEASE_TAG does not match plugin version $plugin_version."
+          exit 1
+        }
+
+    - name: Get release info
+      id: info
+      run: |
+        echo "tag_name=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+        echo "repo_name=${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+
+    - name: Copy plugin files
+      run: |
+        mkdir -p build/${{ steps.info.outputs.repo_name }}
+        rsync -a \
+          --exclude='.git' \
+          --exclude='.gitignore' \
+          --exclude='.github' \
+          --exclude='.claude' \
+          --exclude='node_modules' \
+          --exclude='vendor' \
+          --exclude='build' \
+          --exclude='tests' \
+          --exclude='*.md' \
+          --exclude='composer.json' \
+          --exclude='composer.lock' \
+          --exclude='package.json' \
+          --exclude='package-lock.json' \
+          --exclude='yarn.lock' \
+          --exclude='phpunit.xml*' \
+          --exclude='.phpunit*' \
+          --exclude='.phpcs.xml*' \
+          --exclude='webpack.config.js' \
+          --exclude='gulpfile.js' \
+          --exclude='src' \
+          --exclude='assets/src' \
+          --exclude='docker-compose.yml' \
+          --exclude='Dockerfile' \
+          --exclude='.vscode' \
+          --exclude='.idea' \
+          --exclude='.DS_Store' \
+          --exclude='Thumbs.db' \
+          --exclude='.env*' \
+          --exclude='*.log' \
+          ./ build/${{ steps.info.outputs.repo_name }}/
+
+    - name: Create zip file
+      run: |
+        cd build
+        zip -r "../${{ steps.info.outputs.repo_name }}.zip" "${{ steps.info.outputs.repo_name }}/"
+
+    - name: Upload release asset
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload "${{ steps.info.outputs.tag_name }}" \
+          "./${{ steps.info.outputs.repo_name }}.zip" \
+          --clobber

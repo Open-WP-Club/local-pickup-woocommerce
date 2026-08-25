@@ -1,0 +1,26 @@
+{
+  "name": "open-wp-club/local-pickup-woocommerce",
+  "description": "Zone-aware local pickup locations for the WooCommerce Checkout Block.",
+  "type": "wordpress-plugin",
+  "license": "Apache-2.0",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "wp-coding-standards/wpcs": "^3.2"
+  },
+  "scripts": {
+    "test": "phpunit",
+    "lint:php": "phpcs --standard=WordPress-Core --exclude=WordPress.Files.FileName --extensions=php local-pickup-stores.php includes"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "7.4.33"
+    },
+    "sort-packages": true
+  }
+}

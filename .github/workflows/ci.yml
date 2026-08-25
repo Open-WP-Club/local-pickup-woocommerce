@@ -1,0 +1,60 @@
+name: Plugin checks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP 8.4
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run unit tests
+        run: composer test
+
+      - name: Check PHP syntax
+        run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Check WordPress coding standards
+        run: composer lint:php
+
+  assets:
+    name: Assets and translations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check JavaScript syntax
+        run: node --check assets/js/checkout.js
+
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install --yes gettext
+
+      - name: Validate Bulgarian translation
+        run: msgfmt --check languages/local-pickup-stores-bg_BG.po --output-file=/tmp/local-pickup-stores-bg_BG.mo
