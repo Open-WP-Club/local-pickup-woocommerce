@@ -17,6 +17,31 @@ final class LPS_Order {
 		add_filter( 'woocommerce_email_order_meta_fields', array( __CLASS__, 'email_order_meta' ), 10, 3 );
 		add_action( 'woocommerce_email_order_meta', array( __CLASS__, 'email_map_link' ), 20, 3 );
 		add_action( 'woocommerce_order_details_after_order_table', array( __CLASS__, 'frontend_order_details' ) );
+		add_filter( 'woocommerce_email_recipient_new_order', array( __CLASS__, 'add_location_notify_recipient' ), 10, 2 );
+	}
+
+	public static function add_location_notify_recipient( $recipient, $order ) {
+		if ( ! $order instanceof WC_Order ) {
+			return $recipient;
+		}
+
+		$location_id = absint( $order->get_meta( self::META_LOCATION_ID, true ) );
+		if ( ! $location_id ) {
+			return $recipient;
+		}
+
+		$notify_email = get_post_meta( $location_id, '_lps_notify_email', true );
+		if ( ! $notify_email || ! is_email( $notify_email ) ) {
+			return $recipient;
+		}
+
+		$recipients = array_filter( array_map( 'trim', explode( ',', (string) $recipient ) ) );
+		if ( in_array( $notify_email, $recipients, true ) ) {
+			return $recipient;
+		}
+
+		$recipients[] = $notify_email;
+		return implode( ', ', $recipients );
 	}
 
 	public static function pickup_taxable_address( $address ) {
@@ -178,7 +203,7 @@ final class LPS_Order {
 			$html .= '<br>' . esc_html( $data['address'] );
 		}
 		if ( $data['map_url'] ) {
-			$html .= ' <a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-stores' ) . '</a>';
+			$html .= '<br><a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-stores' ) . '</a>';
 		}
 		if ( $data['phone'] ) {
 			$html .= '<br><span>' . esc_html__( 'Phone:', 'local-pickup-stores' ) . ' ' . esc_html( $data['phone'] ) . '</span>';

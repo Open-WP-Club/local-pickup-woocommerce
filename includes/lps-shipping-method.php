@@ -73,6 +73,22 @@ class LPS_Shipping_Method extends WC_Shipping_Method {
 		);
 	}
 
+	public function is_available( $package ) {
+		if ( ! parent::is_available( $package ) ) {
+			return false;
+		}
+
+		$allowed_ids = array_filter( array_map( 'absint', (array) $this->get_option( 'locations', array() ) ) );
+
+		foreach ( LPS_Locations::get_locations( true ) as $location ) {
+			if ( ! $allowed_ids || in_array( $location->ID, $allowed_ids, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function calculate_shipping( $package = array() ) {
 		$allowed_ids         = array_filter( array_map( 'absint', (array) $this->get_option( 'locations', array() ) ) );
 		$default_location_id = absint( $this->get_option( 'default_location', 0 ) );
