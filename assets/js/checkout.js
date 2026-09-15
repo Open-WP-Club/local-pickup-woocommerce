@@ -18,6 +18,33 @@
 		return label ? label.textContent.replace( /\s+/g, ' ' ).trim() : input.value;
 	}
 
+	function instanceId( input ) {
+		return input.value.slice( METHOD_PREFIX.length ).split( ':' )[ 0 ];
+	}
+
+	function locationId( input ) {
+		return input.value.slice( METHOD_PREFIX.length ).split( ':' )[ 1 ];
+	}
+
+	function groupLabel( radios ) {
+		const titles = window.lpsCheckout ? window.lpsCheckout.methodTitles : null;
+		const title = titles ? titles[ instanceId( radios[ 0 ] ) ] : null;
+		return title || ( window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location' );
+	}
+
+	function optionText( input ) {
+		const locations = window.lpsCheckout ? window.lpsCheckout.locations : null;
+		const location = locations ? locations[ locationId( input ) ] : null;
+		if ( ! location ) {
+			return optionLabel( input );
+		}
+
+		const showPrice = window.lpsCheckout && window.lpsCheckout.showPrice;
+		const shouldShowPrice = showPrice ? showPrice[ instanceId( input ) ] !== false : true;
+
+		return shouldShowPrice && location.price ? location.name + ' — ' + location.price : location.name;
+	}
+
 	function renderSelector() {
 		if ( isSyncing ) {
 			return;
@@ -33,7 +60,7 @@
 		}
 
 		const signature = radios.map( function ( radio ) {
-			return radio.value + ':' + optionLabel( radio );
+			return radio.value + ':' + optionText( radio );
 		} ).join( '|' );
 
 		if ( current && current.dataset.signature === signature ) {
@@ -55,7 +82,7 @@
 
 		const label = document.createElement( 'label' );
 		label.htmlFor = 'lps-pickup-location';
-		label.textContent = window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location';
+		label.textContent = groupLabel( radios );
 
 		const select = document.createElement( 'select' );
 		select.id = 'lps-pickup-location';
@@ -71,7 +98,7 @@
 		radios.forEach( function ( radio ) {
 			const option = document.createElement( 'option' );
 			option.value = radio.value;
-			option.textContent = optionLabel( radio );
+			option.textContent = optionText( radio );
 			option.selected = radio.checked;
 			select.appendChild( option );
 

@@ -70,6 +70,12 @@ class LPS_Shipping_Method extends WC_Shipping_Method {
 				'options'     => array( '' => __( 'First available location', 'local-pickup-stores' ) ) + $options,
 				'desc_tip'    => true,
 			),
+			'show_price'       => array(
+				'title'   => __( 'Show price', 'local-pickup-stores' ),
+				'type'    => 'checkbox',
+				'label'   => __( 'Show the pickup price next to each store in the checkout dropdown', 'local-pickup-stores' ),
+				'default' => 'yes',
+			),
 		);
 	}
 

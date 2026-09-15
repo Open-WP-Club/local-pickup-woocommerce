@@ -85,14 +85,55 @@ final class LPS_Plugin {
 			true
 		);
 
+		$method_settings = $this->get_pickup_method_settings();
+
 		wp_localize_script(
 			'lps-checkout',
 			'lpsCheckout',
 			array(
 				'pickupLocation' => __( 'Pickup location', 'local-pickup-stores' ),
 				'selectLocation' => __( 'Select a pickup location', 'local-pickup-stores' ),
+				'methodTitles'   => $method_settings['titles'],
+				'showPrice'      => $method_settings['show_price'],
+				'locations'      => $this->get_pickup_location_data(),
 			)
 		);
+	}
+
+	public function get_pickup_method_settings() {
+		$titles     = array();
+		$show_price = array();
+		$zones      = WC_Shipping_Zones::get_zones();
+		$zones[]    = array( 'zone_id' => 0 );
+
+		foreach ( $zones as $zone_data ) {
+			$zone = new WC_Shipping_Zone( $zone_data['zone_id'] );
+			foreach ( $zone->get_shipping_methods() as $method ) {
+				if ( 'lps_local_pickup' === $method->id ) {
+					$titles[ $method->instance_id ]     = $method->title;
+					$show_price[ $method->instance_id ] = 'yes' === $method->get_option( 'show_price', 'yes' );
+				}
+			}
+		}
+
+		return array(
+			'titles'     => $titles,
+			'show_price' => $show_price,
+		);
+	}
+
+	public function get_pickup_location_data() {
+		$locations = array();
+
+		foreach ( LPS_Locations::get_locations( false ) as $location ) {
+			$price                      = (float) get_post_meta( $location->ID, '_lps_price', true );
+			$locations[ $location->ID ] = array(
+				'name'  => $location->post_title,
+				'price' => $price > 0 ? wp_strip_all_tags( wc_price( $price ) ) : __( 'Free', 'local-pickup-stores' ),
+			);
+		}
+
+		return $locations;
 	}
 
 	public function plugin_action_links( $links ) {

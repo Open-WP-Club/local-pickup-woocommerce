@@ -197,7 +197,7 @@ final class LPS_Locations {
 				),
 				'public'              => false,
 				'show_ui'             => true,
-				'show_in_menu'        => 'woocommerce',
+				'show_in_menu'        => false,
 				'show_in_rest'        => false,
 				'supports'            => array( 'title' ),
 				'menu_icon'           => 'dashicons-location-alt',
