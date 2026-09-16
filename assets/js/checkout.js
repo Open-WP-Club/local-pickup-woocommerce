@@ -5,12 +5,29 @@
 	const WRAPPER_CLASS = 'lps-pickup-selector';
 	let isSyncing = false;
 
+	const RADIO_SELECTORS = [
+		'.wp-block-woocommerce-checkout-pickup-options-block input[type="radio"]',
+		'#shipping_method input[type="radio"]',
+	];
+
 	function findPickupRadios() {
-		return Array.from(
-			document.querySelectorAll( '.wp-block-woocommerce-checkout-pickup-options-block input[type="radio"]' )
-		).filter( function ( input ) {
-			return input.value.indexOf( METHOD_PREFIX ) === 0;
+		const seen = new Set();
+		const radios = [];
+
+		RADIO_SELECTORS.forEach( function ( selector ) {
+			document.querySelectorAll( selector ).forEach( function ( input ) {
+				if ( input.value.indexOf( METHOD_PREFIX ) === 0 && ! seen.has( input ) ) {
+					seen.add( input );
+					radios.push( input );
+				}
+			} );
 		} );
+
+		return radios;
+	}
+
+	function pickupRow( input ) {
+		return input.closest( '.wc-block-components-radio-control__option' ) || input.closest( 'li' );
 	}
 
 	function optionLabel( input ) {
@@ -59,6 +76,15 @@
 			return;
 		}
 
+		// Re-mark rows on every pass: some checkout renderers replace these
+		// nodes on refresh, which would silently drop the hiding class.
+		radios.forEach( function ( radio ) {
+			const row = pickupRow( radio );
+			if ( row ) {
+				row.classList.add( 'lps-native-rate' );
+			}
+		} );
+
 		const signature = radios.map( function ( radio ) {
 			return radio.value + ':' + optionText( radio );
 		} ).join( '|' );
@@ -76,7 +102,11 @@
 			current.remove();
 		}
 
-		const wrapper = document.createElement( 'div' );
+		const firstRow = pickupRow( radios[ 0 ] );
+		const parent   = firstRow ? firstRow.parentNode : null;
+		const isList   = parent && ( 'UL' === parent.tagName || 'OL' === parent.tagName );
+
+		const wrapper = document.createElement( isList ? 'li' : 'div' );
 		wrapper.className = WRAPPER_CLASS;
 		wrapper.dataset.signature = signature;
 
@@ -101,11 +131,6 @@
 			option.textContent = optionText( radio );
 			option.selected = radio.checked;
 			select.appendChild( option );
-
-			const row = radio.closest( '.wc-block-components-radio-control__option' );
-			if ( row ) {
-				row.classList.add( 'lps-native-rate' );
-			}
 		} );
 
 		if ( ! radios.some( function ( radio ) { return radio.checked; } ) ) {
@@ -125,9 +150,8 @@
 		wrapper.appendChild( label );
 		wrapper.appendChild( select );
 
-		const firstRow = radios[ 0 ].closest( '.wc-block-components-radio-control__option' );
-		if ( firstRow && firstRow.parentNode ) {
-			firstRow.parentNode.insertBefore( wrapper, firstRow );
+		if ( firstRow && parent ) {
+			parent.insertBefore( wrapper, firstRow );
 		}
 	}
 
@@ -138,4 +162,19 @@
 		attributes: true,
 		attributeFilter: [ 'checked' ],
 	} );
+
+	// Exposed for the Node test suite only; unreachable in the browser since
+	// `module` is never defined there.
+	if ( typeof module !== 'undefined' && module.exports ) {
+		module.exports = {
+			findPickupRadios: findPickupRadios,
+			pickupRow: pickupRow,
+			optionLabel: optionLabel,
+			instanceId: instanceId,
+			locationId: locationId,
+			groupLabel: groupLabel,
+			optionText: optionText,
+			renderSelector: renderSelector,
+		};
+	}
 }() );

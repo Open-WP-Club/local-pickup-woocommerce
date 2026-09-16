@@ -1,0 +1,12 @@
+{
+  "name": "local-pickup-woocommerce",
+  "private": true,
+  "version": "1.1.1",
+  "description": "Test tooling for the Local Pickup Stores checkout script.",
+  "scripts": {
+    "test": "node --test tests/js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

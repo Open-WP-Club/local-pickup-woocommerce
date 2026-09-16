@@ -3,7 +3,7 @@
  * Plugin Name: Local Pickup Stores for WooCommerce
  * Plugin URI:  https://github.com/Open-WP-Club/local-pickup-woocommerce
  * Description: Adds zone-aware store pickup locations with individual prices to the WooCommerce Checkout Block.
- * Version:     1.1.0
+ * Version:     1.1.1
  * Author:      Open WP Club contributors
  * Author URI:  https://github.com/Open-WP-Club
  * Text Domain: local-pickup-stores
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LPS_VERSION', '1.1.0' );
+define( 'LPS_VERSION', '1.1.1' );
 define( 'LPS_FILE', __FILE__ );
 define( 'LPS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'LPS_URL', plugin_dir_url( __FILE__ ) );
