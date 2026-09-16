@@ -129,7 +129,7 @@ final class LPS_Plugin {
 			$price                      = (float) get_post_meta( $location->ID, '_lps_price', true );
 			$locations[ $location->ID ] = array(
 				'name'  => $location->post_title,
-				'price' => $price > 0 ? wp_strip_all_tags( wc_price( $price ) ) : __( 'Free', 'local-pickup-stores' ),
+				'price' => $price > 0 ? html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES ) : __( 'Free', 'local-pickup-stores' ),
 			);
 		}
 

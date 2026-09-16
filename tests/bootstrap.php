@@ -26,6 +26,15 @@ function wp_kses_post( $html ) {
 	return $html;
 }
 
+function wc_price( $price ) {
+	$formatted = number_format( (float) $price, 2 );
+	return '<span class="woocommerce-Price-amount amount"><bdi>' . $formatted . '&nbsp;<span class="woocommerce-Price-currency-symbol">&euro;</span></bdi></span>';
+}
+
+function wp_strip_all_tags( $string ) {
+	return strip_tags( $string );
+}
+
 function add_action() {
 	return true;
 }
@@ -137,3 +146,4 @@ final class LPS_Locations {
 
 require_once dirname( __DIR__ ) . '/includes/lps-shipping-method.php';
 require_once dirname( __DIR__ ) . '/includes/lps-order.php';
+require_once dirname( __DIR__ ) . '/includes/lps-plugin.php';

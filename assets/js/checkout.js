@@ -82,6 +82,10 @@
 			const row = pickupRow( radio );
 			if ( row ) {
 				row.classList.add( 'lps-native-rate' );
+				// Inline !important beats even ID-selector theme/plugin CSS
+				// (e.g. #shipping_method li), which the .lps-native-rate
+				// class alone can lose to on specificity.
+				row.style.setProperty( 'display', 'none', 'important' );
 			}
 		} );
 

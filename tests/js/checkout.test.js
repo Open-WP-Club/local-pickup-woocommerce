@@ -157,6 +157,23 @@ test( 'renderSelector collapses classic checkout rows into one dropdown', () => 
 	assert.ok( ! econtRow.classList.contains( 'lps-native-rate' ), 'unrelated rates are left alone' );
 } );
 
+test( 'renderSelector force-hides native rows with inline !important, so higher-specificity theme CSS cannot override it', () => {
+	const { checkout, document } = loadCheckout( CLASSIC_MARKUP, LPS_CHECKOUT_DATA );
+
+	const style = document.createElement( 'style' );
+	style.textContent = '#shipping_method li { display: flex !important; }';
+	document.head.appendChild( style );
+
+	checkout.renderSelector();
+
+	const rodinaRow = document.getElementById( 'shipping_method_0_lps_local_pickup:1:20' ).closest( 'li' );
+	const econtRow = document.getElementById( 'shipping_method_0_econt_office:2' ).closest( 'li' );
+
+	assert.equal( rodinaRow.style.getPropertyValue( 'display' ), 'none' );
+	assert.equal( rodinaRow.style.getPropertyPriority( 'display' ), 'important' );
+	assert.equal( econtRow.style.getPropertyValue( 'display' ), '', 'unrelated rates get no inline override' );
+} );
+
 test( 'renderSelector collapses block checkout rows into one dropdown', () => {
 	const { checkout, document } = loadCheckout( BLOCK_MARKUP, LPS_CHECKOUT_DATA );
 
