@@ -36,3 +36,22 @@
 .lps-native-rate {
 	display: none !important;
 }
+
+.lps-pickup-method {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.lps-pickup-selector.lps-selected .lps-pickup-method-label {
+	text-decoration: underline;
+}
+
+.lps-location-details {
+	font-size: 0.875em;
+	opacity: 0.8;
+}
+
+.lps-location-details[hidden] {
+	display: none;
+}

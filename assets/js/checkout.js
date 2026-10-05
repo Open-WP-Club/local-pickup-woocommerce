@@ -92,7 +92,19 @@
 		const checked = radios.find( function ( radio ) { return radio.checked; } );
 		const select = wrapper.querySelector( 'select' );
 		select.required = Boolean( checked );
-		select.value = checked ? checked.value : '';
+		if ( checked ) {
+			select.value = checked.value;
+		}
+		const location = checked && window.lpsCheckout && window.lpsCheckout.locations
+			? window.lpsCheckout.locations[ locationId( checked ) ]
+			: null;
+		const details = wrapper.querySelector( '.lps-location-details' );
+		details.textContent = location ? [ location.address, location.hours ].filter( Boolean ).join( ' — ' ) : '';
+		details.hidden = ! details.textContent;
+		wrapper.querySelector( '.lps-pickup-method' ).checked = Boolean( checked );
+		wrapper.querySelector( '.lps-location-picker' ).hidden = ! checked;
+		wrapper.classList.toggle( 'lps-selected', Boolean( checked ) );
+		select.disabled = ! checked;
 	}
 
 	function selectRate( value ) {
@@ -146,14 +158,20 @@
 		wrapper.className = WRAPPER_CLASS;
 		wrapper.dataset.signature = signature;
 
-		// Heading only, no radio: picking a store in the dropdown selects the
-		// native rate, which remains the submitted shipping method.
-		const methodLabel = document.createElement( 'div' );
+		// Clickable option like the other methods; the radio is visually hidden
+		// (no tick) and the native rate remains the submitted shipping method.
+		const methodLabel = document.createElement( 'label' );
 		methodLabel.className = 'lps-pickup-method-label';
-		methodLabel.textContent = groupLabel( radios );
+		const method = document.createElement( 'input' );
+		method.type = 'radio';
+		method.className = 'lps-pickup-method';
+		method.setAttribute( 'aria-controls', 'lps-location-picker' );
+		methodLabel.appendChild( method );
+		methodLabel.appendChild( document.createTextNode( groupLabel( radios ) ) );
 
 		const picker = document.createElement( 'div' );
-				picker.className = 'lps-location-picker';
+				picker.id = 'lps-location-picker';
+		picker.className = 'lps-location-picker';
 		const select = document.createElement( 'select' );
 		select.id = 'lps-pickup-location';
 		select.setAttribute( 'aria-label', window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location' );
@@ -180,8 +198,14 @@
 		select.addEventListener( 'change', function () {
 			selectRate( select.value );
 		} );
+		method.addEventListener( 'change', function () {
+			selectRate( select.value );
+		} );
 
 		picker.appendChild( select );
+		const details = document.createElement( 'div' );
+		details.className = 'lps-location-details';
+		picker.appendChild( details );
 		wrapper.appendChild( methodLabel );
 		wrapper.appendChild( picker );
 		syncSelector( wrapper, radios );

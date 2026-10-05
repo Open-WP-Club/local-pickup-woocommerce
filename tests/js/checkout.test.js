@@ -49,7 +49,7 @@ const LPS_CHECKOUT_DATA = {
 	methodTitles: { 1: 'Store pickup' },
 	showPrice: { 1: true },
 	locations: {
-		20: { name: 'Rodina', price: 'Free' },
+		20: { name: 'Rodina', price: 'Free', address: 'Main St 1, Ruse', hours: 'Mon-Fri 9-18' },
 		21: { name: 'Charodeyka', price: 'Free' },
 	},
 };
@@ -223,32 +223,46 @@ for ( const [ name, markup, otherId ] of [
 	[ 'block', BLOCK_MARKUP, 'radio-3' ],
 	[ 'classic', CLASSIC_MARKUP, 'shipping_method_0_econt_office:2' ],
 ] ) {
-	test( `${ name } checkout shows a tickless heading and an always-visible store picker`, () => {
+	test( `${ name } checkout shows the store picker only while Store pickup is selected`, () => {
 		const { checkout, document } = loadCheckout( markup, LPS_CHECKOUT_DATA );
 		const other = document.getElementById( otherId );
 		other.checked = true;
 		checkout.renderSelector();
 
-		const heading = document.querySelector( '.lps-pickup-method-label' );
+		const method = document.querySelector( '.lps-pickup-method' );
 		const picker = document.querySelector( '.lps-location-picker' );
 		const select = picker.querySelector( 'select' );
-		assert.equal( heading.textContent, 'Store pickup' );
-		assert.equal( document.querySelector( '.lps-pickup-selector input[type="radio"]' ), null, 'no tick before the heading' );
+		assert.equal( method.parentNode.textContent, 'Store pickup' );
+		assert.equal( method.parentNode.nextElementSibling, picker, 'picker is under the method option' );
+		assert.equal( method.checked, false );
+		assert.equal( picker.hidden, true );
+		assert.equal( select.disabled, true );
+		assert.equal( select.required, false, 'shipping is not blocked by a hidden required picker' );
+		assert.equal( other.checked, true );
+
+		method.click();
+		assert.equal( method.checked, true );
 		assert.equal( picker.hidden, false );
 		assert.equal( select.disabled, false );
-		assert.equal( select.required, false );
-		assert.equal( select.value, '' );
+		assert.equal( select.required, true );
+		assert.equal( select.value, 'lps_local_pickup:1:20', 'uses the first available rate initially' );
+		assert.equal( checkout.findPickupRadios()[ 0 ].checked, true );
+		assert.equal( other.checked, false );
 
 		select.value = 'lps_local_pickup:1:21';
 		select.dispatchEvent( new document.defaultView.Event( 'change', { bubbles: true } ) );
 		assert.equal( checkout.findPickupRadios()[ 1 ].checked, true );
-		assert.equal( other.checked, false );
-		assert.equal( select.required, true );
-
 		other.click();
-		assert.equal( select.value, '', 'picker resets when another method is chosen' );
+		assert.equal( method.checked, false );
+		assert.equal( picker.hidden, true );
+		assert.equal( select.disabled, true );
 		assert.equal( select.required, false );
 		assert.ok( checkout.findPickupRadios().every( ( radio ) => ! radio.checked ) );
+
+		method.click();
+		assert.equal( picker.hidden, false );
+		assert.equal( select.value, 'lps_local_pickup:1:21', 'restores the previous store' );
+		assert.equal( checkout.findPickupRadios()[ 1 ].checked, true );
 	} );
 }
 
@@ -280,6 +294,19 @@ test( 'checkout without pickup rates renders no picker', () => {
 	const { checkout, document } = loadCheckout( '<input type="radio" value="flat_rate:1" checked>', LPS_CHECKOUT_DATA );
 	checkout.renderSelector();
 	assert.equal( document.querySelector( '.lps-pickup-selector' ), null );
+} );
+
+test( 'initially unselected pickup shows a disabled hidden picker until the method label is clicked', () => {
+	const { checkout, document } = loadCheckout( BLOCK_MARKUP.replace( ' checked', '' ), LPS_CHECKOUT_DATA );
+	checkout.renderSelector();
+	const select = document.querySelector( '.lps-pickup-selector select' );
+	assert.equal( select.value, '' );
+	assert.equal( select.disabled, true );
+	assert.equal( select.parentNode.hidden, true );
+	document.querySelector( '.lps-pickup-method-label' ).click();
+	assert.equal( select.value, 'lps_local_pickup:1:20' );
+	assert.equal( select.disabled, false );
+	assert.equal( select.parentNode.hidden, false );
 } );
 
 test( 'price visibility changes labels without changing the selected rate', () => {
@@ -356,4 +383,12 @@ test( 'theme-rendered rate buttons (input + label in plain divs) are hidden', ()
 	assert.equal( document.querySelector( 'label[for="r1"]' ).style.display, 'none' );
 	assert.equal( document.querySelector( '.btn' ).style.display, 'none' );
 	assert.equal( document.getElementById( 'r1' ).style.display, 'none' );
+} );
+
+test( 'selected store address and hours are shown under the picker', () => {
+	const { checkout, document } = loadCheckout( BLOCK_MARKUP, LPS_CHECKOUT_DATA );
+	checkout.renderSelector();
+	const details = document.querySelector( '.lps-location-details' );
+	assert.equal( details.textContent, 'Main St 1, Ruse — Mon-Fri 9-18' );
+	assert.equal( details.hidden, false );
 } );
