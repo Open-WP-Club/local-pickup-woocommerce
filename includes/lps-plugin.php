@@ -130,7 +130,6 @@ final class LPS_Plugin {
 			$locations[ $location->ID ] = array(
 				'name'    => $location->post_title,
 				'address' => LPS_Locations::get_address( $location->ID ),
-				'hours'   => get_post_meta( $location->ID, '_lps_hours', true ),
 				'price'   => $price > 0 ? html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES ) : __( 'Free', 'local-pickup-woocommerce' ),
 			);
 		}

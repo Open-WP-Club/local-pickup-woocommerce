@@ -99,7 +99,7 @@
 			? window.lpsCheckout.locations[ locationId( checked ) ]
 			: null;
 		const details = wrapper.querySelector( '.lps-location-details' );
-		const text = location ? [ location.address, location.hours ].filter( Boolean ).join( ' — ' ) : '';
+		const text = location ? location.address : '';
 		// Write only on change: any DOM write re-triggers the MutationObserver.
 		if ( details.textContent !== text ) {
 			details.textContent = text;

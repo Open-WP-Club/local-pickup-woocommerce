@@ -49,7 +49,7 @@ const LPS_CHECKOUT_DATA = {
 	methodTitles: { 1: 'Store pickup' },
 	showPrice: { 1: true },
 	locations: {
-		20: { name: 'Rodina', price: 'Free', address: 'Main St 1, Ruse', hours: 'Mon-Fri 9-18' },
+		20: { name: 'Rodina', price: 'Free', address: 'Main St 1, Ruse' },
 		21: { name: 'Charodeyka', price: 'Free' },
 	},
 };
@@ -385,10 +385,10 @@ test( 'theme-rendered rate buttons (input + label in plain divs) are hidden', ()
 	assert.equal( document.getElementById( 'r1' ).style.display, 'none' );
 } );
 
-test( 'selected store address and hours are shown under the picker', () => {
+test( 'selected store address is shown under the picker', () => {
 	const { checkout, document } = loadCheckout( BLOCK_MARKUP, LPS_CHECKOUT_DATA );
 	checkout.renderSelector();
 	const details = document.querySelector( '.lps-location-details' );
-	assert.equal( details.textContent, 'Main St 1, Ruse — Mon-Fri 9-18' );
+	assert.equal( details.textContent, 'Main St 1, Ruse' );
 	assert.equal( details.hidden, false );
 } );
