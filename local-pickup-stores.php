@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'LPS_VERSION', '1.1.5' );
+define( 'LPS_VERSION', get_file_data( __FILE__, array( 'Version' => 'Version' ) )['Version'] );
 define( 'LPS_FILE', __FILE__ );
 define( 'LPS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'LPS_URL', plugin_dir_url( __FILE__ ) );

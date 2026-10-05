@@ -1,10 +1,17 @@
 <?php
 
 define( 'ABSPATH', dirname( __DIR__ ) . '/' );
-define( 'LPS_PATH', ABSPATH );
-define( 'LPS_FILE', ABSPATH . 'local-pickup-stores.php' );
-define( 'LPS_URL', 'https://example.test/plugins/local-pickup-stores/' );
-define( 'LPS_VERSION', 'test' );
+
+function plugin_dir_path( $file ) { return dirname( $file ) . '/'; }
+function plugin_dir_url( $file ) { return 'https://example.test/plugins/local-pickup-stores/'; }
+function get_file_data( $file, $headers ) {
+	$data = array();
+	foreach ( $headers as $key => $header ) {
+		preg_match( '/^ \* ' . preg_quote( $header, '/' ) . ':\s*(.+)$/m', file_get_contents( $file ), $match );
+		$data[ $key ] = trim( $match[1] ?? '' );
+	}
+	return $data;
+}
 
 function __( $text, $domain = 'default' ) {
 	return $text;
@@ -269,3 +276,4 @@ require_once dirname( __DIR__ ) . '/includes/lps-locations.php';
 require_once dirname( __DIR__ ) . '/includes/lps-shipping-method.php';
 require_once dirname( __DIR__ ) . '/includes/lps-order.php';
 require_once dirname( __DIR__ ) . '/includes/lps-plugin.php';
+require_once dirname( __DIR__ ) . '/local-pickup-stores.php';

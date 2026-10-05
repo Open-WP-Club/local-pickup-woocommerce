@@ -1,5 +1,15 @@
 <?php
 
+class LPS_Test_RouteException extends RuntimeException {
+	public $error_code;
+	public $http_status;
+	public function __construct( $error_code, $message, $http_status ) {
+		parent::__construct( $message );
+		$this->error_code = $error_code;
+		$this->http_status = $http_status;
+	}
+}
+
 final class OrderTest extends LPS_TestCase {
 	protected function setUp(): void {
 		parent::setUp();
@@ -72,6 +82,23 @@ final class OrderTest extends LPS_TestCase {
 
 	public static function invalidLocations(): array {
 		return array( array( 'deleted' ), array( 'draft' ), array( 'disabled' ), array( 'wrong zone' ), array( 'missing id' ) );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_invalid_pickup_returns_a_store_api_error_when_available(): void {
+		class_alias( LPS_Test_RouteException::class, 'Automattic\WooCommerce\StoreApi\Exceptions\RouteException' );
+		$order = $this->pickupOrder();
+		$GLOBALS['lps_test_post_meta'][10]['_lps_enabled'] = 'no';
+		try {
+			LPS_Order::validate_and_save( $order );
+			$this->fail( 'Expected a Store API checkout error' );
+		} catch ( LPS_Test_RouteException $error ) {
+			$this->assertSame( 'lps_invalid_pickup_location', $error->error_code );
+			$this->assertSame( 400, $error->http_status );
+		}
 	}
 
 	public function test_allowed_location_ids_can_be_strings_in_zone_settings(): void {

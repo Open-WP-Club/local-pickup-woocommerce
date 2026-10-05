@@ -43,6 +43,25 @@ A WooCommerce extension for zone-aware store pickup locations with individual pr
 ```sh
 composer install
 composer test
-find . -name '*.php' -print0 | xargs -0 -n1 php -l
+composer lint:php
+npm ci
+npm test
+find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
 node --check assets/js/checkout.js
 ```
+
+PHP tests exercise the real plugin classes with small WordPress/WooCommerce doubles:
+location filtering and saving, permissions and nonces, address validation, duplication,
+reordering, shipping rates and availability, order validation and snapshots, tax addresses,
+emails, output escaping, checkout assets, and version consistency. JavaScript tests use
+jsdom to check method switching, store selection, localization, and checkout DOM refreshes.
+These tests do not replace a checkout test in a running WordPress/WooCommerce store.
+
+## Releases
+
+Update only `Version:` in the header of `local-pickup-stores.php`. The runtime
+`LPS_VERSION` constant and asset cache versions are read from that header automatically.
+The private npm test tooling has no separate version to maintain.
+
+Create the GitHub release with the same version as its tag (an optional `v` prefix is
+accepted). The release workflow verifies that the tag matches the plugin header.

@@ -27,11 +27,21 @@ jobs:
     - name: Install test dependencies
       run: composer install --no-interaction --no-progress --prefer-dist
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+
+    - name: Install JS dependencies
+      run: npm ci
+
     - name: Run release checks
       run: |
         composer validate --strict
         composer test
         composer lint:php
+        npm test
         find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
         node --check assets/js/checkout.js
 
