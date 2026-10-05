@@ -223,46 +223,32 @@ for ( const [ name, markup, otherId ] of [
 	[ 'block', BLOCK_MARKUP, 'radio-3' ],
 	[ 'classic', CLASSIC_MARKUP, 'shipping_method_0_econt_office:2' ],
 ] ) {
-	test( `${ name } checkout shows the store picker only while Store pickup is selected`, () => {
+	test( `${ name } checkout shows a tickless heading and an always-visible store picker`, () => {
 		const { checkout, document } = loadCheckout( markup, LPS_CHECKOUT_DATA );
 		const other = document.getElementById( otherId );
 		other.checked = true;
 		checkout.renderSelector();
 
-		const method = document.querySelector( '.lps-pickup-method' );
+		const heading = document.querySelector( '.lps-pickup-method-label' );
 		const picker = document.querySelector( '.lps-location-picker' );
 		const select = picker.querySelector( 'select' );
-		assert.equal( method.parentNode.textContent, 'Store pickup' );
-		assert.equal( method.parentNode.nextElementSibling, picker, 'picker is under the method option' );
-		assert.equal( method.checked, false );
-		assert.equal( picker.hidden, true );
-		assert.equal( select.disabled, true );
-		assert.equal( select.required, false, 'shipping is not blocked by a hidden required picker' );
-		assert.equal( other.checked, true );
-
-		method.click();
-		assert.equal( method.checked, true );
+		assert.equal( heading.textContent, 'Store pickup' );
+		assert.equal( document.querySelector( '.lps-pickup-selector input[type="radio"]' ), null, 'no tick before the heading' );
 		assert.equal( picker.hidden, false );
 		assert.equal( select.disabled, false );
-		assert.equal( select.required, true );
-		assert.equal( select.value, 'lps_local_pickup:1:20', 'uses the first available rate initially' );
-		assert.equal( checkout.findPickupRadios()[ 0 ].checked, true );
-		assert.equal( other.checked, false );
+		assert.equal( select.required, false );
+		assert.equal( select.value, '' );
 
 		select.value = 'lps_local_pickup:1:21';
 		select.dispatchEvent( new document.defaultView.Event( 'change', { bubbles: true } ) );
 		assert.equal( checkout.findPickupRadios()[ 1 ].checked, true );
+		assert.equal( other.checked, false );
+		assert.equal( select.required, true );
+
 		other.click();
-		assert.equal( method.checked, false );
-		assert.equal( picker.hidden, true );
-		assert.equal( select.disabled, true );
+		assert.equal( select.value, '', 'picker resets when another method is chosen' );
 		assert.equal( select.required, false );
 		assert.ok( checkout.findPickupRadios().every( ( radio ) => ! radio.checked ) );
-
-		method.click();
-		assert.equal( picker.hidden, false );
-		assert.equal( select.value, 'lps_local_pickup:1:21', 'restores the previous store' );
-		assert.equal( checkout.findPickupRadios()[ 1 ].checked, true );
 	} );
 }
 
@@ -296,19 +282,6 @@ test( 'checkout without pickup rates renders no picker', () => {
 	assert.equal( document.querySelector( '.lps-pickup-selector' ), null );
 } );
 
-test( 'initially unselected pickup shows a disabled hidden picker until the method label is clicked', () => {
-	const { checkout, document } = loadCheckout( BLOCK_MARKUP.replace( ' checked', '' ), LPS_CHECKOUT_DATA );
-	checkout.renderSelector();
-	const select = document.querySelector( '.lps-pickup-selector select' );
-	assert.equal( select.value, '' );
-	assert.equal( select.disabled, true );
-	assert.equal( select.parentNode.hidden, true );
-	document.querySelector( '.lps-pickup-method-label' ).click();
-	assert.equal( select.value, 'lps_local_pickup:1:20' );
-	assert.equal( select.disabled, false );
-	assert.equal( select.parentNode.hidden, false );
-} );
-
 test( 'price visibility changes labels without changing the selected rate', () => {
 	const data = { ...LPS_CHECKOUT_DATA, showPrice: { 1: false } };
 	const { checkout, document } = loadCheckout( BLOCK_MARKUP, data );
@@ -329,7 +302,7 @@ test( 'missing localization falls back to native labels and accessible English l
 	const select = document.querySelector( '.lps-pickup-selector select' );
 	assert.equal( select.options[ 1 ].textContent, 'Rodina' );
 	assert.equal( select.options[ 0 ].textContent, 'Select a pickup location' );
-	assert.equal( document.querySelector( 'label[for="lps-pickup-location"]' ).control, select );
+	assert.equal( select.getAttribute( 'aria-label' ), 'Pickup location' );
 	assert.equal( document.querySelector( '.lps-pickup-method-label' ).textContent, 'Pickup location' );
 } );
 
@@ -374,5 +347,13 @@ test( 'observer updates stores and selection when the selected store is removed'
 	const select = document.querySelector( '.lps-pickup-selector select' );
 	assert.deepEqual( Array.from( select.options ).map( ( option ) => option.value ), [ '', 'lps_local_pickup:1:21' ] );
 	assert.equal( select.value, 'lps_local_pickup:1:21' );
-	assert.equal( document.querySelector( '.lps-pickup-method' ).checked, true );
+} );
+
+test( 'theme-rendered rate buttons (input + label in plain divs) are hidden', () => {
+	const markup = '<div id="shipping_method"><div class="btn"><input type="radio" id="r1" value="lps_local_pickup:1:20" checked><label for="r1"><span>Rodina</span></label></div></div>';
+	const { checkout, document } = loadCheckout( markup, LPS_CHECKOUT_DATA );
+	checkout.renderSelector();
+	assert.equal( document.querySelector( 'label[for="r1"]' ).style.display, 'none' );
+	assert.equal( document.querySelector( '.btn' ).style.display, 'none' );
+	assert.equal( document.getElementById( 'r1' ).style.display, 'none' );
 } );
