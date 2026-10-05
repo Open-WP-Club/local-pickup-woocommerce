@@ -99,8 +99,12 @@
 			? window.lpsCheckout.locations[ locationId( checked ) ]
 			: null;
 		const details = wrapper.querySelector( '.lps-location-details' );
-		details.textContent = location ? [ location.address, location.hours ].filter( Boolean ).join( ' — ' ) : '';
-		details.hidden = ! details.textContent;
+		const text = location ? [ location.address, location.hours ].filter( Boolean ).join( ' — ' ) : '';
+		// Write only on change: any DOM write re-triggers the MutationObserver.
+		if ( details.textContent !== text ) {
+			details.textContent = text;
+		}
+		details.hidden = ! text;
 		wrapper.querySelector( '.lps-pickup-method' ).checked = Boolean( checked );
 		wrapper.querySelector( '.lps-location-picker' ).hidden = ! checked;
 		wrapper.classList.toggle( 'lps-selected', Boolean( checked ) );
