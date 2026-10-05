@@ -62,6 +62,30 @@
 		return shouldShowPrice && location.price ? location.name + ' — ' + location.price : location.name;
 	}
 
+	function syncSelector( wrapper, radios ) {
+		const checked = radios.find( function ( radio ) { return radio.checked; } );
+		const select = wrapper.querySelector( 'select' );
+		wrapper.querySelector( '.lps-pickup-method' ).checked = Boolean( checked );
+		wrapper.querySelector( '.lps-location-picker' ).hidden = ! checked;
+		select.disabled = ! checked;
+		select.required = Boolean( checked );
+		if ( checked ) {
+			select.value = checked.value;
+		}
+	}
+
+	function selectRate( value ) {
+		// WooCommerce can replace the native inputs after a checkout refresh.
+		const radios = findPickupRadios();
+		const selected = radios.find( function ( radio ) { return radio.value === value; } ) || radios[ 0 ];
+		if ( selected ) {
+			isSyncing = true;
+			selected.click();
+			isSyncing = false;
+			renderSelector();
+		}
+	}
+
 	function renderSelector() {
 		if ( isSyncing ) {
 			return;
@@ -93,12 +117,10 @@
 			return radio.value + ':' + optionText( radio );
 		} ).join( '|' );
 
-		if ( current && current.dataset.signature === signature ) {
-			const select = current.querySelector( 'select' );
-			const checked = radios.find( function ( radio ) { return radio.checked; } );
-			if ( checked && select.value !== checked.value ) {
-				select.value = checked.value;
-			}
+		const firstRow = pickupRow( radios[ 0 ] );
+		const parent   = firstRow ? firstRow.parentNode : null;
+		if ( current && current.dataset.signature === signature && current.parentNode === parent ) {
+			syncSelector( current, radios );
 			return;
 		}
 
@@ -106,22 +128,32 @@
 			current.remove();
 		}
 
-		const firstRow = pickupRow( radios[ 0 ] );
-		const parent   = firstRow ? firstRow.parentNode : null;
 		const isList   = parent && ( 'UL' === parent.tagName || 'OL' === parent.tagName );
 
 		const wrapper = document.createElement( isList ? 'li' : 'div' );
 		wrapper.className = WRAPPER_CLASS;
 		wrapper.dataset.signature = signature;
 
+		const methodLabel = document.createElement( 'label' );
+		methodLabel.className = 'lps-pickup-method-label';
+		const method = document.createElement( 'input' );
+		method.type = 'radio';
+		method.className = 'lps-pickup-method';
+		// The native rate remains the submitted shipping method.
+		method.setAttribute( 'aria-controls', 'lps-location-picker' );
+		methodLabel.appendChild( method );
+		methodLabel.appendChild( document.createTextNode( groupLabel( radios ) ) );
+
+		const picker = document.createElement( 'div' );
+		picker.id = 'lps-location-picker';
+		picker.className = 'lps-location-picker';
 		const label = document.createElement( 'label' );
 		label.htmlFor = 'lps-pickup-location';
-		label.textContent = groupLabel( radios );
+		label.textContent = window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location';
 
 		const select = document.createElement( 'select' );
 		select.id = 'lps-pickup-location';
 		select.className = 'wc-block-components-select__select';
-		select.setAttribute( 'required', 'required' );
 
 		const placeholder = document.createElement( 'option' );
 		placeholder.value = '';
@@ -142,17 +174,17 @@
 		}
 
 		select.addEventListener( 'change', function () {
-			const selected = radios.find( function ( radio ) { return radio.value === select.value; } );
-			if ( selected ) {
-				isSyncing = true;
-				selected.click();
-				isSyncing = false;
-				window.setTimeout( renderSelector, 0 );
-			}
+			selectRate( select.value );
+		} );
+		method.addEventListener( 'change', function () {
+			selectRate( select.value );
 		} );
 
-		wrapper.appendChild( label );
-		wrapper.appendChild( select );
+		picker.appendChild( label );
+		picker.appendChild( select );
+		wrapper.appendChild( methodLabel );
+		wrapper.appendChild( picker );
+		syncSelector( wrapper, radios );
 
 		if ( firstRow && parent ) {
 			parent.insertBefore( wrapper, firstRow );
@@ -160,6 +192,11 @@
 	}
 
 	document.addEventListener( 'DOMContentLoaded', renderSelector );
+	document.addEventListener( 'change', function ( event ) {
+		if ( event.target.matches( 'input[type="radio"]' ) ) {
+			renderSelector();
+		}
+	} );
 	new MutationObserver( renderSelector ).observe( document.documentElement, {
 		childList: true,
 		subtree: true,

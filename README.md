@@ -9,7 +9,7 @@ A WooCommerce extension for zone-aware store pickup locations with individual pr
 - Add **Store pickup** to any WooCommerce shipping zone.
 - Limit each shipping-zone instance to selected locations, or leave it empty to use all active locations.
 - Choose a default pickup location for each shipping-zone instance.
-- Present the matching pickup rates as a single dropdown in the Checkout Block.
+- Show a Store pickup option with a store dropdown underneath when selected; hide the dropdown when another method is selected.
 - Use WooCommerce-native shipping rates so free/paid pickup, taxes, and checkout totals remain accurate.
 - Validate the selected location server-side before the order is placed.
 - Show a snapshot of the selected location in order admin, emails, My Account, and the thank-you page.

@@ -1,15 +1,13 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-
-final class PluginLocationDataTest extends TestCase {
+final class PluginLocationDataTest extends LPS_TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		LPS_Locations::$locations = array(
-			(object) array( 'ID' => 10, 'post_title' => 'Rodina' ),
-			(object) array( 'ID' => 20, 'post_title' => 'Free Store' ),
+		$GLOBALS['lps_test_posts'] = array(
+			lps_test_location( 10, 'Rodina' ),
+			lps_test_location( 20, 'Free Store' ),
 		);
 
 		$GLOBALS['lps_test_post_meta'] = array(

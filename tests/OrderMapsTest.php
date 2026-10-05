@@ -1,8 +1,6 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-
-final class OrderMapsTest extends TestCase {
+final class OrderMapsTest extends LPS_TestCase {
 
 	public function test_google_maps_url_uses_encoded_order_address_snapshot(): void {
 		$data = $this->displayData();

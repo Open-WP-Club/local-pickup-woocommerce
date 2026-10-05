@@ -8,6 +8,23 @@
 	font-weight: 600;
 }
 
+.lps-pickup-method-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.lps-location-picker {
+	display: grid;
+	gap: 0.5rem;
+	margin-inline-start: 1.5rem;
+}
+
+.lps-location-picker[hidden] {
+	display: none !important;
+}
+
 .lps-pickup-selector select {
 	box-sizing: border-box;
 	font: inherit;
@@ -19,4 +36,3 @@
 .lps-native-rate {
 	display: none !important;
 }
-
