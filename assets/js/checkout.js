@@ -30,6 +30,32 @@
 		return input.closest( '.wc-block-components-radio-control__option' ) || input.closest( 'li' );
 	}
 
+	function hideNow( el ) {
+		el.classList.add( 'lps-native-rate' );
+		// Inline !important beats even ID-selector theme/plugin CSS
+		// (e.g. #shipping_method li), which the class alone can lose to.
+		el.style.setProperty( 'display', 'none', 'important' );
+	}
+
+	// Themes render rates in their own markup (e.g. buttons made of a
+	// <label for>), so hide the row, the label bound to the input, and the
+	// input's wrapper when it holds nothing but this rate.
+	// Re-run on every pass: renderers replace these nodes on refresh.
+	function hideRate( input ) {
+		const row = pickupRow( input );
+		const label = input.id ? document.querySelector( 'label[for="' + CSS.escape( input.id ) + '"]' ) : null;
+		const wrapper = input.parentElement;
+		if ( row ) {
+			hideNow( row );
+		} else if ( wrapper && wrapper.querySelectorAll( 'input' ).length === 1 ) {
+			hideNow( wrapper );
+		}
+		if ( label ) {
+			hideNow( label );
+		}
+		hideNow( input );
+	}
+
 	function optionLabel( input ) {
 		const label = input.id ? document.querySelector( 'label[for="' + CSS.escape( input.id ) + '"]' ) : null;
 		return label ? label.textContent.replace( /\s+/g, ' ' ).trim() : input.value;
@@ -65,13 +91,8 @@
 	function syncSelector( wrapper, radios ) {
 		const checked = radios.find( function ( radio ) { return radio.checked; } );
 		const select = wrapper.querySelector( 'select' );
-		wrapper.querySelector( '.lps-pickup-method' ).checked = Boolean( checked );
-		wrapper.querySelector( '.lps-location-picker' ).hidden = ! checked;
-		select.disabled = ! checked;
 		select.required = Boolean( checked );
-		if ( checked ) {
-			select.value = checked.value;
-		}
+		select.value = checked ? checked.value : '';
 	}
 
 	function selectRate( value ) {
@@ -102,16 +123,7 @@
 
 		// Re-mark rows on every pass: some checkout renderers replace these
 		// nodes on refresh, which would silently drop the hiding class.
-		radios.forEach( function ( radio ) {
-			const row = pickupRow( radio );
-			if ( row ) {
-				row.classList.add( 'lps-native-rate' );
-				// Inline !important beats even ID-selector theme/plugin CSS
-				// (e.g. #shipping_method li), which the .lps-native-rate
-				// class alone can lose to on specificity.
-				row.style.setProperty( 'display', 'none', 'important' );
-			}
-		} );
+		radios.forEach( hideRate );
 
 		const signature = radios.map( function ( radio ) {
 			return radio.value + ':' + optionText( radio );
@@ -134,25 +146,17 @@
 		wrapper.className = WRAPPER_CLASS;
 		wrapper.dataset.signature = signature;
 
-		const methodLabel = document.createElement( 'label' );
+		// Heading only, no radio: picking a store in the dropdown selects the
+		// native rate, which remains the submitted shipping method.
+		const methodLabel = document.createElement( 'div' );
 		methodLabel.className = 'lps-pickup-method-label';
-		const method = document.createElement( 'input' );
-		method.type = 'radio';
-		method.className = 'lps-pickup-method';
-		// The native rate remains the submitted shipping method.
-		method.setAttribute( 'aria-controls', 'lps-location-picker' );
-		methodLabel.appendChild( method );
-		methodLabel.appendChild( document.createTextNode( groupLabel( radios ) ) );
+		methodLabel.textContent = groupLabel( radios );
 
 		const picker = document.createElement( 'div' );
-		picker.id = 'lps-location-picker';
-		picker.className = 'lps-location-picker';
-		const label = document.createElement( 'label' );
-		label.htmlFor = 'lps-pickup-location';
-		label.textContent = window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location';
-
+				picker.className = 'lps-location-picker';
 		const select = document.createElement( 'select' );
 		select.id = 'lps-pickup-location';
+		select.setAttribute( 'aria-label', window.lpsCheckout ? window.lpsCheckout.pickupLocation : 'Pickup location' );
 		select.className = 'wc-block-components-select__select';
 
 		const placeholder = document.createElement( 'option' );
@@ -176,11 +180,7 @@
 		select.addEventListener( 'change', function () {
 			selectRate( select.value );
 		} );
-		method.addEventListener( 'change', function () {
-			selectRate( select.value );
-		} );
 
-		picker.appendChild( label );
 		picker.appendChild( select );
 		wrapper.appendChild( methodLabel );
 		wrapper.appendChild( picker );
