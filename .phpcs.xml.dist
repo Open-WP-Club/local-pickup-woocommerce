@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="Local Pickup WooCommerce">
+    <file>local-pickup-stores.php</file>
+    <file>includes</file>
+    <arg name="extensions" value="php"/>
+    <rule ref="WordPress-Core">
+        <exclude name="WordPress.Files.FileName"/>
+    </rule>
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="local-pickup-woocommerce"/>
+            </property>
+        </properties>
+    </rule>
+    <rule ref="WordPress.Security.EscapeOutput"/>
+</ruleset>

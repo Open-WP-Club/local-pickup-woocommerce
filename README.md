@@ -20,7 +20,7 @@ A WooCommerce extension for zone-aware store pickup locations with individual pr
 
 ## Installation
 
-1. Copy this directory to `wp-content/plugins/local-pickup-stores` or upload it as a ZIP from WordPress admin.
+1. Copy this directory to `wp-content/plugins/local-pickup-woocommerce` or upload it as a ZIP from WordPress admin.
 2. Activate **Local Pickup Stores for WooCommerce**.
 3. Add and publish at least one location at **WooCommerce → Pickup locations**.
 4. Go to **WooCommerce → Settings → Shipping → Shipping zones**.

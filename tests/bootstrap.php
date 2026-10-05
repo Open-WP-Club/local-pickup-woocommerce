@@ -14,11 +14,11 @@ function get_file_data( $file, $headers ) {
 }
 
 function __( $text, $domain = 'default' ) {
-	return $text;
+	return $GLOBALS['lps_test_translations'][ $domain ][ $text ] ?? $text;
 }
 
 function esc_html__( $text, $domain = 'default' ) {
-	return $text;
+	return esc_html( __( $text, $domain ) );
 }
 
 function esc_html( $text ) {
@@ -253,7 +253,7 @@ abstract class LPS_TestCase extends PHPUnit\Framework\TestCase {
 		parent::setUp();
 		$_POST = array();
 		$_GET = array();
-		foreach ( array( 'posts', 'post_meta', 'post_query', 'denied_posts', 'hooks', 'styles', 'scripts', 'localized' ) as $key ) {
+		foreach ( array( 'posts', 'post_meta', 'post_query', 'denied_posts', 'hooks', 'styles', 'scripts', 'localized', 'translations' ) as $key ) {
 			$GLOBALS[ 'lps_test_' . $key ] = array();
 		}
 		$GLOBALS['lps_test_is_checkout'] = true;

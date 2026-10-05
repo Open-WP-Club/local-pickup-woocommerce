@@ -107,13 +107,13 @@ final class LPS_Order {
 	}
 
 	private static function throw_checkout_error() {
-		$message = __( 'Please select a valid pickup location before placing your order.', 'local-pickup-stores' );
+		$message = __( 'Please select a valid pickup location before placing your order.', 'local-pickup-woocommerce' );
 
 		if ( class_exists( '\\Automattic\\WooCommerce\\StoreApi\\Exceptions\\RouteException' ) ) {
-			throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'lps_invalid_pickup_location', $message, 400 );
+			throw new \Automattic\WooCommerce\StoreApi\Exceptions\RouteException( 'lps_invalid_pickup_location', esc_html( $message ), 400 );
 		}
 
-		throw new Exception( $message );
+		throw new Exception( esc_html( $message ) );
 	}
 
 	public static function admin_order_details( $order ) {
@@ -122,7 +122,7 @@ final class LPS_Order {
 			return;
 		}
 
-		echo '<div class="lps-order-pickup"><h3>' . esc_html__( 'Pickup location', 'local-pickup-stores' ) . '</h3>';
+		echo '<div class="lps-order-pickup"><h3>' . esc_html__( 'Pickup location', 'local-pickup-woocommerce' ) . '</h3>';
 		echo wp_kses_post( self::format_data( $data ) );
 		echo '</div>';
 	}
@@ -131,7 +131,7 @@ final class LPS_Order {
 		$data = self::get_display_data( $order );
 		if ( $data ) {
 			$fields['lps_pickup_location'] = array(
-				'label' => __( 'Pickup location', 'local-pickup-stores' ),
+				'label' => __( 'Pickup location', 'local-pickup-woocommerce' ),
 				'value' => implode( ' — ', array_filter( array( $data['name'], $data['address'], $data['phone'], $data['hours'] ) ) ),
 			);
 		}
@@ -146,11 +146,11 @@ final class LPS_Order {
 		}
 
 		if ( $plain_text ) {
-			echo esc_html__( 'Google Maps:', 'local-pickup-stores' ) . ' ' . esc_url_raw( $data['map_url'] ) . "\n";
+			echo esc_html__( 'Google Maps:', 'local-pickup-woocommerce' ) . ' ' . esc_url_raw( $data['map_url'] ) . "\n";
 			return;
 		}
 
-		echo '<p><a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-stores' ) . '</a></p>';
+		echo '<p><a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-woocommerce' ) . '</a></p>';
 	}
 
 	public static function frontend_order_details( $order ) {
@@ -160,7 +160,7 @@ final class LPS_Order {
 		}
 
 		echo '<section class="woocommerce-order-details lps-order-pickup">';
-		echo '<h2 class="woocommerce-order-details__title">' . esc_html__( 'Pickup location', 'local-pickup-stores' ) . '</h2>';
+		echo '<h2 class="woocommerce-order-details__title">' . esc_html__( 'Pickup location', 'local-pickup-woocommerce' ) . '</h2>';
 		echo wp_kses_post( self::format_data( $data ) );
 		echo '</section>';
 	}
@@ -203,13 +203,13 @@ final class LPS_Order {
 			$html .= '<br>' . esc_html( $data['address'] );
 		}
 		if ( $data['map_url'] ) {
-			$html .= '<br><a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-stores' ) . '</a>';
+			$html .= '<br><a href="' . esc_url( $data['map_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View in Google Maps', 'local-pickup-woocommerce' ) . '</a>';
 		}
 		if ( $data['phone'] ) {
-			$html .= '<br><span>' . esc_html__( 'Phone:', 'local-pickup-stores' ) . ' ' . esc_html( $data['phone'] ) . '</span>';
+			$html .= '<br><span>' . esc_html__( 'Phone:', 'local-pickup-woocommerce' ) . ' ' . esc_html( $data['phone'] ) . '</span>';
 		}
 		if ( $data['hours'] ) {
-			$html .= '<br><span>' . esc_html__( 'Opening hours:', 'local-pickup-stores' ) . ' ' . nl2br( esc_html( $data['hours'] ) ) . '</span>';
+			$html .= '<br><span>' . esc_html__( 'Opening hours:', 'local-pickup-woocommerce' ) . ' ' . nl2br( esc_html( $data['hours'] ) ) . '</span>';
 		}
 		return $html . '</p>';
 	}

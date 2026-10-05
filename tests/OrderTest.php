@@ -90,6 +90,7 @@ final class OrderTest extends LPS_TestCase {
 	 */
 	public function test_invalid_pickup_returns_a_store_api_error_when_available(): void {
 		class_alias( LPS_Test_RouteException::class, 'Automattic\WooCommerce\StoreApi\Exceptions\RouteException' );
+		$GLOBALS['lps_test_translations']['local-pickup-woocommerce']['Please select a valid pickup location before placing your order.'] = 'Choose <b>store</b> & confirm';
 		$order = $this->pickupOrder();
 		$GLOBALS['lps_test_post_meta'][10]['_lps_enabled'] = 'no';
 		try {
@@ -98,7 +99,17 @@ final class OrderTest extends LPS_TestCase {
 		} catch ( LPS_Test_RouteException $error ) {
 			$this->assertSame( 'lps_invalid_pickup_location', $error->error_code );
 			$this->assertSame( 400, $error->http_status );
+			$this->assertSame( 'Choose &lt;b&gt;store&lt;/b&gt; &amp; confirm', $error->getMessage() );
 		}
+	}
+
+	public function test_fallback_checkout_exception_escapes_translated_content(): void {
+		$GLOBALS['lps_test_translations']['local-pickup-woocommerce']['Please select a valid pickup location before placing your order.'] = 'Choose <b>store</b> & confirm';
+		$order = $this->pickupOrder();
+		$GLOBALS['lps_test_post_meta'][10]['_lps_enabled'] = 'no';
+		$this->expectException( Exception::class );
+		$this->expectExceptionMessage( 'Choose &lt;b&gt;store&lt;/b&gt; &amp; confirm' );
+		LPS_Order::validate_and_save( $order );
 	}
 
 	public function test_allowed_location_ids_can_be_strings_in_zone_settings(): void {

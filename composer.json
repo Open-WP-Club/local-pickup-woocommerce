@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "phpunit",
-    "lint:php": "phpcs --standard=WordPress-Core --exclude=WordPress.Files.FileName --extensions=php local-pickup-stores.php includes"
+    "lint:php": "phpcs"
   },
   "config": {
     "allow-plugins": {

@@ -6,7 +6,7 @@
  * Version:     1.1.5
  * Author:      Open WP Club contributors
  * Author URI:  https://github.com/Open-WP-Club
- * Text Domain: local-pickup-stores
+ * Text Domain: local-pickup-woocommerce
  * Domain Path: /languages
  * Requires at least: 6.5
  * Requires PHP: 7.4

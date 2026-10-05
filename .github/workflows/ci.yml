@@ -64,4 +64,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes gettext
 
       - name: Validate Bulgarian translation
-        run: msgfmt --check languages/local-pickup-stores-bg_BG.po --output-file=/tmp/local-pickup-stores-bg_BG.mo
+        run: msgfmt --check languages/local-pickup-woocommerce-bg_BG.po --output-file=/tmp/local-pickup-woocommerce-bg_BG.mo

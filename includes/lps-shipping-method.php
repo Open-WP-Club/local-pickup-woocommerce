@@ -8,8 +8,8 @@ class LPS_Shipping_Method extends WC_Shipping_Method {
 		parent::__construct( $instance_id );
 
 		$this->id                 = 'lps_local_pickup';
-		$this->method_title       = __( 'Store pickup', 'local-pickup-stores' );
-		$this->method_description = __( 'Let customers collect their order from a selected store or pickup location.', 'local-pickup-stores' );
+		$this->method_title       = __( 'Store pickup', 'local-pickup-woocommerce' );
+		$this->method_description = __( 'Let customers collect their order from a selected store or pickup location.', 'local-pickup-woocommerce' );
 		$this->supports           = array( 'shipping-zones', 'instance-settings', 'instance-settings-modal', 'local-pickup' );
 
 		$this->init();
@@ -20,7 +20,7 @@ class LPS_Shipping_Method extends WC_Shipping_Method {
 		$this->init_instance_form_fields();
 		$this->init_instance_settings();
 
-		$this->title      = $this->get_option( 'title', __( 'Store pickup', 'local-pickup-stores' ) );
+		$this->title      = $this->get_option( 'title', __( 'Store pickup', 'local-pickup-woocommerce' ) );
 		$this->tax_status = 'taxable';
 		$this->enabled    = $this->get_option( 'enabled', 'yes' );
 
@@ -39,41 +39,41 @@ class LPS_Shipping_Method extends WC_Shipping_Method {
 
 		$this->instance_form_fields = array(
 			'enabled'          => array(
-				'title'   => __( 'Enable/Disable', 'local-pickup-stores' ),
+				'title'   => __( 'Enable/Disable', 'local-pickup-woocommerce' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable store pickup for this shipping zone', 'local-pickup-stores' ),
+				'label'   => __( 'Enable store pickup for this shipping zone', 'local-pickup-woocommerce' ),
 				'default' => 'yes',
 			),
 			'title'            => array(
-				'title'       => __( 'Method title', 'local-pickup-stores' ),
+				'title'       => __( 'Method title', 'local-pickup-woocommerce' ),
 				'type'        => 'text',
-				'description' => __( 'Shown to customers in the Checkout Block.', 'local-pickup-stores' ),
-				'default'     => __( 'Store pickup', 'local-pickup-stores' ),
+				'description' => __( 'Shown to customers in the Checkout Block.', 'local-pickup-woocommerce' ),
+				'default'     => __( 'Store pickup', 'local-pickup-woocommerce' ),
 				'desc_tip'    => true,
 			),
 			'locations'        => array(
-				'title'       => __( 'Available locations', 'local-pickup-stores' ),
+				'title'       => __( 'Available locations', 'local-pickup-woocommerce' ),
 				'type'        => 'multiselect',
 				'class'       => 'wc-enhanced-select',
 				'css'         => 'width: 400px;',
-				'description' => __( 'Choose the locations available in this zone. Leave empty to use every enabled location.', 'local-pickup-stores' ),
+				'description' => __( 'Choose the locations available in this zone. Leave empty to use every enabled location.', 'local-pickup-woocommerce' ),
 				'options'     => $options,
 				'desc_tip'    => true,
 			),
 			'default_location' => array(
-				'title'       => __( 'Default location', 'local-pickup-stores' ),
+				'title'       => __( 'Default location', 'local-pickup-woocommerce' ),
 				'type'        => 'select',
 				'class'       => 'wc-enhanced-select',
 				'css'         => 'width: 400px;',
-				'description' => __( 'This location is selected first when pickup is initially chosen. It must also be available in this zone.', 'local-pickup-stores' ),
+				'description' => __( 'This location is selected first when pickup is initially chosen. It must also be available in this zone.', 'local-pickup-woocommerce' ),
 				'default'     => '',
-				'options'     => array( '' => __( 'First available location', 'local-pickup-stores' ) ) + $options,
+				'options'     => array( '' => __( 'First available location', 'local-pickup-woocommerce' ) ) + $options,
 				'desc_tip'    => true,
 			),
 			'show_price'       => array(
-				'title'   => __( 'Show price', 'local-pickup-stores' ),
+				'title'   => __( 'Show price', 'local-pickup-woocommerce' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Show the pickup price next to each store in the checkout dropdown', 'local-pickup-stores' ),
+				'label'   => __( 'Show the pickup price next to each store in the checkout dropdown', 'local-pickup-woocommerce' ),
 				'default' => 'yes',
 			),
 		);

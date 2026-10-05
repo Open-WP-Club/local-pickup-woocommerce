@@ -27,7 +27,7 @@ final class LPS_Plugin {
 	}
 
 	public function load() {
-		load_plugin_textdomain( 'local-pickup-stores', false, dirname( plugin_basename( LPS_FILE ) ) . '/languages' );
+		load_plugin_textdomain( 'local-pickup-woocommerce', false, dirname( plugin_basename( LPS_FILE ) ) . '/languages' );
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
@@ -91,8 +91,8 @@ final class LPS_Plugin {
 			'lps-checkout',
 			'lpsCheckout',
 			array(
-				'pickupLocation' => __( 'Pickup location', 'local-pickup-stores' ),
-				'selectLocation' => __( 'Select a pickup location', 'local-pickup-stores' ),
+				'pickupLocation' => __( 'Pickup location', 'local-pickup-woocommerce' ),
+				'selectLocation' => __( 'Select a pickup location', 'local-pickup-woocommerce' ),
 				'methodTitles'   => $method_settings['titles'],
 				'showPrice'      => $method_settings['show_price'],
 				'locations'      => $this->get_pickup_location_data(),
@@ -129,7 +129,7 @@ final class LPS_Plugin {
 			$price                      = (float) get_post_meta( $location->ID, '_lps_price', true );
 			$locations[ $location->ID ] = array(
 				'name'  => $location->post_title,
-				'price' => $price > 0 ? html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES ) : __( 'Free', 'local-pickup-stores' ),
+				'price' => $price > 0 ? html_entity_decode( wp_strip_all_tags( wc_price( $price ) ), ENT_QUOTES ) : __( 'Free', 'local-pickup-woocommerce' ),
 			);
 		}
 
@@ -140,7 +140,7 @@ final class LPS_Plugin {
 		array_unshift(
 			$links,
 			'<a href="' . esc_url( admin_url( 'edit.php?post_type=lps_pickup_location' ) ) . '">' .
-			esc_html__( 'Pickup locations', 'local-pickup-stores' ) . '</a>'
+			esc_html__( 'Pickup locations', 'local-pickup-woocommerce' ) . '</a>'
 		);
 
 		return $links;
@@ -148,7 +148,7 @@ final class LPS_Plugin {
 
 	public function woocommerce_missing_notice() {
 		echo '<div class="notice notice-error"><p>';
-		echo esc_html__( 'Local Pickup Stores requires WooCommerce to be installed and active.', 'local-pickup-stores' );
+		echo esc_html__( 'Local Pickup Stores requires WooCommerce to be installed and active.', 'local-pickup-woocommerce' );
 		echo '</p></div>';
 	}
 }

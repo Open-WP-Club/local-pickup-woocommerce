@@ -41,7 +41,7 @@ final class LPS_Locations {
 			'lps_duplicate_location_' . $post->ID
 		);
 
-		$actions['duplicate'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Duplicate', 'local-pickup-stores' ) . '</a>';
+		$actions['duplicate'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Duplicate', 'local-pickup-woocommerce' ) . '</a>';
 		return $actions;
 	}
 
@@ -51,7 +51,7 @@ final class LPS_Locations {
 
 		$original = get_post( $post_id );
 		if ( ! $original || self::POST_TYPE !== $original->post_type || ! current_user_can( 'edit_post', $post_id ) ) {
-			wp_die( esc_html__( 'You are not allowed to duplicate this pickup location.', 'local-pickup-stores' ) );
+			wp_die( esc_html__( 'You are not allowed to duplicate this pickup location.', 'local-pickup-woocommerce' ) );
 		}
 
 		$new_id = wp_insert_post(
@@ -59,7 +59,7 @@ final class LPS_Locations {
 				'post_type'   => self::POST_TYPE,
 				'post_status' => 'draft',
 				/* translators: %s: original pickup location title. */
-				'post_title'  => sprintf( __( '%s (copy)', 'local-pickup-stores' ), $original->post_title ),
+				'post_title'  => sprintf( __( '%s (copy)', 'local-pickup-woocommerce' ), $original->post_title ),
 			),
 			true
 		);
@@ -160,11 +160,11 @@ final class LPS_Locations {
 			return;
 		}
 
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'Pickup location was saved as draft because a street address is required before it can be published.', 'local-pickup-stores' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Pickup location was saved as draft because a street address is required before it can be published.', 'local-pickup-woocommerce' ) . '</p></div>';
 	}
 
 	public static function add_settings_tab( $tabs ) {
-		$tabs['pickup_locations'] = __( 'Pickup locations', 'local-pickup-stores' );
+		$tabs['pickup_locations'] = __( 'Pickup locations', 'local-pickup-woocommerce' );
 		return $tabs;
 	}
 
@@ -189,11 +189,11 @@ final class LPS_Locations {
 			self::POST_TYPE,
 			array(
 				'labels'              => array(
-					'name'          => __( 'Pickup locations', 'local-pickup-stores' ),
-					'singular_name' => __( 'Pickup location', 'local-pickup-stores' ),
-					'add_new_item'  => __( 'Add pickup location', 'local-pickup-stores' ),
-					'edit_item'     => __( 'Edit pickup location', 'local-pickup-stores' ),
-					'menu_name'     => __( 'Pickup locations', 'local-pickup-stores' ),
+					'name'          => __( 'Pickup locations', 'local-pickup-woocommerce' ),
+					'singular_name' => __( 'Pickup location', 'local-pickup-woocommerce' ),
+					'add_new_item'  => __( 'Add pickup location', 'local-pickup-woocommerce' ),
+					'edit_item'     => __( 'Edit pickup location', 'local-pickup-woocommerce' ),
+					'menu_name'     => __( 'Pickup locations', 'local-pickup-woocommerce' ),
 				),
 				'public'              => false,
 				'show_ui'             => true,
@@ -211,7 +211,7 @@ final class LPS_Locations {
 	public static function add_meta_box() {
 		add_meta_box(
 			'lps-location-details',
-			__( 'Location details', 'local-pickup-stores' ),
+			__( 'Location details', 'local-pickup-woocommerce' ),
 			array( __CLASS__, 'render_meta_box' ),
 			self::POST_TYPE,
 			'normal',
@@ -223,14 +223,14 @@ final class LPS_Locations {
 		wp_nonce_field( 'lps_save_location', 'lps_location_nonce' );
 
 		$fields = array(
-			'address'      => array( __( 'Street address', 'local-pickup-stores' ), 'text' ),
-			'city'         => array( __( 'City', 'local-pickup-stores' ), 'text' ),
-			'state'        => array( __( 'State / County', 'local-pickup-stores' ), 'text' ),
-			'postcode'     => array( __( 'Postcode', 'local-pickup-stores' ), 'text' ),
-			'phone'        => array( __( 'Phone', 'local-pickup-stores' ), 'text' ),
-			'notify_email' => array( __( 'Notification email', 'local-pickup-stores' ), 'email' ),
-			'hours'        => array( __( 'Opening hours', 'local-pickup-stores' ), 'textarea' ),
-			'price'        => array( __( 'Pickup price', 'local-pickup-stores' ), 'number' ),
+			'address'      => array( __( 'Street address', 'local-pickup-woocommerce' ), 'text' ),
+			'city'         => array( __( 'City', 'local-pickup-woocommerce' ), 'text' ),
+			'state'        => array( __( 'State / County', 'local-pickup-woocommerce' ), 'text' ),
+			'postcode'     => array( __( 'Postcode', 'local-pickup-woocommerce' ), 'text' ),
+			'phone'        => array( __( 'Phone', 'local-pickup-woocommerce' ), 'text' ),
+			'notify_email' => array( __( 'Notification email', 'local-pickup-woocommerce' ), 'email' ),
+			'hours'        => array( __( 'Opening hours', 'local-pickup-woocommerce' ), 'textarea' ),
+			'price'        => array( __( 'Pickup price', 'local-pickup-woocommerce' ), 'number' ),
 		);
 
 		echo '<table class="form-table"><tbody>';
@@ -250,9 +250,9 @@ final class LPS_Locations {
 				echo '<input class="regular-text"' . $attributes . ' id="lps_' . esc_attr( $key ) . '" name="lps_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			if ( 'price' === $key ) {
-				echo '<p class="description">' . esc_html__( 'Leave empty or enter 0 for free pickup. The store currency is used.', 'local-pickup-stores' ) . '</p>';
+				echo '<p class="description">' . esc_html__( 'Leave empty or enter 0 for free pickup. The store currency is used.', 'local-pickup-woocommerce' ) . '</p>';
 			} elseif ( 'notify_email' === $key ) {
-				echo '<p class="description">' . esc_html__( 'Optional. Sent a copy of new order emails in addition to the store\'s default admin email.', 'local-pickup-stores' ) . '</p>';
+				echo '<p class="description">' . esc_html__( 'Optional. Sent a copy of new order emails in addition to the store\'s default admin email.', 'local-pickup-woocommerce' ) . '</p>';
 			}
 			echo '</td></tr>';
 		}
@@ -263,21 +263,21 @@ final class LPS_Locations {
 		$enabled    = get_post_meta( $post->ID, '_lps_enabled', true );
 		$enabled    = '' === $enabled ? 'yes' : $enabled;
 
-		echo '<tr><th scope="row"><label for="lps_country">' . esc_html__( 'Country / Region', 'local-pickup-stores' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="lps_country">' . esc_html__( 'Country / Region', 'local-pickup-woocommerce' ) . '</label></th><td>';
 		echo '<select class="wc-enhanced-select" id="lps_country" name="lps_country" style="width: 350px">';
 		foreach ( WC()->countries->get_countries() as $code => $name ) {
 			echo '<option value="' . esc_attr( $code ) . '"' . selected( $country, $code, false ) . '>' . esc_html( $name ) . '</option>';
 		}
 		echo '</select></td></tr>';
 
-		echo '<tr><th scope="row"><label for="lps_tax_status">' . esc_html__( 'Tax status', 'local-pickup-stores' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="lps_tax_status">' . esc_html__( 'Tax status', 'local-pickup-woocommerce' ) . '</label></th><td>';
 		echo '<select id="lps_tax_status" name="lps_tax_status">';
-		echo '<option value="taxable"' . selected( $tax_status, 'taxable', false ) . '>' . esc_html__( 'Taxable', 'local-pickup-stores' ) . '</option>';
-		echo '<option value="none"' . selected( $tax_status, 'none', false ) . '>' . esc_html__( 'None', 'local-pickup-stores' ) . '</option>';
+		echo '<option value="taxable"' . selected( $tax_status, 'taxable', false ) . '>' . esc_html__( 'Taxable', 'local-pickup-woocommerce' ) . '</option>';
+		echo '<option value="none"' . selected( $tax_status, 'none', false ) . '>' . esc_html__( 'None', 'local-pickup-woocommerce' ) . '</option>';
 		echo '</select></td></tr>';
 
-		echo '<tr><th scope="row">' . esc_html__( 'Status', 'local-pickup-stores' ) . '</th><td>';
-		echo '<label><input type="checkbox" name="lps_enabled" value="yes"' . checked( $enabled, 'yes', false ) . '> ' . esc_html__( 'Enable this pickup location', 'local-pickup-stores' ) . '</label>';
+		echo '<tr><th scope="row">' . esc_html__( 'Status', 'local-pickup-woocommerce' ) . '</th><td>';
+		echo '<label><input type="checkbox" name="lps_enabled" value="yes"' . checked( $enabled, 'yes', false ) . '> ' . esc_html__( 'Enable this pickup location', 'local-pickup-woocommerce' ) . '</label>';
 		echo '</td></tr>';
 		echo '</tbody></table>';
 	}
@@ -379,10 +379,10 @@ final class LPS_Locations {
 	public static function columns( $columns ) {
 		return array(
 			'cb'      => $columns['cb'],
-			'title'   => __( 'Location', 'local-pickup-stores' ),
-			'address' => __( 'Address', 'local-pickup-stores' ),
-			'price'   => __( 'Price', 'local-pickup-stores' ),
-			'status'  => __( 'Status', 'local-pickup-stores' ),
+			'title'   => __( 'Location', 'local-pickup-woocommerce' ),
+			'address' => __( 'Address', 'local-pickup-woocommerce' ),
+			'price'   => __( 'Price', 'local-pickup-woocommerce' ),
+			'status'  => __( 'Status', 'local-pickup-woocommerce' ),
 			'date'    => $columns['date'],
 		);
 	}
@@ -392,10 +392,10 @@ final class LPS_Locations {
 			echo esc_html( self::get_address( $post_id ) );
 		} elseif ( 'price' === $column ) {
 			$price = (float) get_post_meta( $post_id, '_lps_price', true );
-			echo $price > 0 ? wp_kses_post( wc_price( $price ) ) : esc_html__( 'Free', 'local-pickup-stores' );
+			echo $price > 0 ? wp_kses_post( wc_price( $price ) ) : esc_html__( 'Free', 'local-pickup-woocommerce' );
 		} elseif ( 'status' === $column ) {
 			$enabled = get_post_meta( $post_id, '_lps_enabled', true );
-			echo ( '' === $enabled || 'yes' === $enabled ) ? esc_html__( 'Enabled', 'local-pickup-stores' ) : esc_html__( 'Disabled', 'local-pickup-stores' );
+			echo ( '' === $enabled || 'yes' === $enabled ) ? esc_html__( 'Enabled', 'local-pickup-woocommerce' ) : esc_html__( 'Disabled', 'local-pickup-woocommerce' );
 		}
 	}
 }
